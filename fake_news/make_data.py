@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.utils import shuffle
 
+
 def make_data(fakepath, truepath, savepath):
     fake = pd.read_csv(fakepath)
     fake["label"] = 0
