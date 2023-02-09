@@ -1,0 +1,21 @@
+# Ignore .pt file
+*.pt
+
+# Ignore pycache files
+__pycache__
+
+poetry.lock
+
+# Ignore .vscode
+.vscode
+
+# Ignore .pytest_cache
+.pytest_cache
+
+
+*.csv
+
+
+.venv
+
+.ipynb_checkpoints
