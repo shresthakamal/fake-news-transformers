@@ -1,9 +1,10 @@
 import torch
 import numpy as np
+from fake_news import config
 
 from transformers import BertModel, BertTokenizer
 from fake_news.architecture import CustomBERTModel
-
+from pathlib import Path
 from loguru import logger
 
 
@@ -32,7 +33,7 @@ def predict(sentence, lower=False):
     model = CustomBERTModel(BertModel, BERT_MODEL="bert-base-uncased").to(device)
 
     # load model
-    model.load_state_dict(torch.load("./fake_news/models/bert_9.pt"))
+    model.load_state_dict(torch.load(Path(config.model_path, "bert_9.pt")))
 
     # set model to evaluation mode
     model.eval()

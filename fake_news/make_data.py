@@ -1,8 +1,14 @@
+import os
 import pandas as pd
 from sklearn.utils import shuffle
+from fake_news import config
 
 
 def make_data(fakepath, truepath, savepath):
+    if os.path.exists(config.savepath):
+        data = pd.read_csv(config.savepath)
+        return data
+
     fake = pd.read_csv(fakepath)
     fake["label"] = 0
 
@@ -10,6 +16,9 @@ def make_data(fakepath, truepath, savepath):
     true["label"] = 1
 
     data = pd.concat([fake, true], ignore_index=True)
+
+    data["X"] = data["subject"] + "[SEP]" + data["title"] + "[SEP]" + data["text"]
+
     data = shuffle(data)
 
     data.to_csv(savepath, index=False)

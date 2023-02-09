@@ -1,7 +1,7 @@
 import numpy as np
 import torch
-
 from transformers import BertModel
+
 
 # Load tokenizer and model
 

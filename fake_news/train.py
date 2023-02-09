@@ -1,6 +1,8 @@
 import time
 import numpy as np
 import torch
+import random
+import datetime
 
 from torch.utils.data import TensorDataset, DataLoader
 from torch.utils.data import DataLoader, RandomSampler
@@ -12,12 +14,27 @@ from fake_news import config
 from fake_news.make_data import make_data
 from fake_news.predict import predict
 
-
+from pathlib import Path
 from loguru import logger
+
+from torch.utils.tensorboard import SummaryWriter
+
+
+# time based filename
+def time_based_filename():
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d_%H-%M-%S")
+
+
+# define format_time function
+def format_time(elapsed):
+    elapsed_rounded = int(round((elapsed)))
+    return str(datetime.timedelta(seconds=elapsed_rounded))
+
 
 logger.add(
     format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level:<8}</level>| <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-    sink="log.txt",
+    sink=Path(config.logs, f"log - {time_based_filename()}.txt"),
 )
 
 
@@ -28,17 +45,12 @@ def flat_accuracy(preds, labels):
     return np.sum(pred_flat == labels_flat) / len(labels_flat)
 
 
-# define format_time function
-def format_time(elapsed):
-    import datetime
-
-    elapsed_rounded = int(round((elapsed)))
-    return str(datetime.timedelta(seconds=elapsed_rounded))
-
-
 def train(sentences, labels, lower=False):
     # Get pytorch device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # set up tensorboard
+    tbwriter = SummaryWriter(config.tensorboard)
 
     input_ids = []
     targets = []
@@ -57,7 +69,7 @@ def train(sentences, labels, lower=False):
             add_special_tokens=True,
             truncation=True,
             padding="max_length",
-            max_length=64,
+            max_length=config.MAX_LENGTH,
             return_tensors="pt",
         ).to(device)
 
@@ -78,10 +90,10 @@ def train(sentences, labels, lower=False):
     dataloader = DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=True)
 
     # define model
-    model = CustomBERTModel(BertModel, BERT_MODEL="bert-base-uncased").to(device)
+    model = CustomBERTModel(BertModel, BERT_MODEL=config.model_name).to(device)
 
     # set adamw optimizer
-    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
     # set loss function
     loss_fn = torch.nn.CrossEntropyLoss()
 
@@ -89,7 +101,10 @@ def train(sentences, labels, lower=False):
     total_steps = len(dataloader) * config.EPOCHS
     # set scheduler
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        optimizer, max_lr=1e-5, steps_per_epoch=len(dataloader), epochs=config.EPOCHS
+        optimizer,
+        max_lr=config.LEARNING_RATE,
+        steps_per_epoch=len(dataloader),
+        epochs=config.EPOCHS,
     )
 
     # start training clock
@@ -123,10 +138,12 @@ def train(sentences, labels, lower=False):
             model.zero_grad()
 
         avg_train_loss = total_loss / len(dataloader)
+
         logger.info("  Average training loss: {0:.2f}".format(avg_train_loss))
+        tbwriter.add_scalar(f"Training loss", avg_train_loss, epoch)
 
         # save model
-        torch.save(model.state_dict(), f"./fake_news/models/bert_{epoch}.pt")
+        torch.save(model.state_dict(), Path(config.model_path, f"bert_{epoch}.pt"))
 
         # # evaluate model
         model.eval()
@@ -151,6 +168,7 @@ def train(sentences, labels, lower=False):
 
         avg_val_accuracy = total_eval_accuracy / len(dataloader)
         logger.info("  Accuracy: {0:.2f}".format(avg_val_accuracy))
+        tbwriter.add_scalar(f"Validation Accuracy", avg_val_accuracy, epoch)
 
         avg_val_loss = total_eval_loss / len(dataloader)
         logger.info("  Validation Loss: {0:.2f}".format(avg_val_loss))
@@ -162,6 +180,11 @@ def train(sentences, labels, lower=False):
 
 # python main function
 if __name__ == "__main__":
+    random.seed(config.seed)
+    torch.manual_seed(config.seed)
+    torch.backends.cudnn.derterministic = True
+    torch.cuda.manual_seed_all(config.seed)
+
     # Log as making data
     logger.info("Making data...")
 
@@ -169,8 +192,8 @@ if __name__ == "__main__":
     data = make_data(config.fakepath, config.truepath, config.savepath)
 
     #  get sentences and labels
-    sentences = data["title"].values[:1000]
-    labels = data["label"].values[:1000]
+    sentences = data["X"].values[: config.TOTAL_ROWS]
+    labels = data["label"].values[: config.TOTAL_ROWS]
 
     # train model
     train(sentences, labels)
