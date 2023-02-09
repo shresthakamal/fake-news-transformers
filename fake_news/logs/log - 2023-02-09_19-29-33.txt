@@ -1,0 +1,61 @@
+2023-02-09 19:29:33.612 | INFO    | __main__:<module>:189 - Making data...
+2023-02-09 19:29:47.626 | INFO    | __main__:train:115 - Epoch 1/10
+2023-02-09 19:29:47.626 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:30:09.724 | INFO    | __main__:train:142 -   Average training loss: 0.67
+2023-02-09 19:30:15.486 | INFO    | __main__:train:170 -   Accuracy: 0.95
+2023-02-09 19:30:15.487 | INFO    | __main__:train:174 -   Validation Loss: 0.57
+2023-02-09 19:30:15.487 | INFO    | __main__:train:176 -   Training epcoh took: 0:00:28
+2023-02-09 19:30:15.487 | INFO    | __main__:train:115 - Epoch 2/10
+2023-02-09 19:30:15.487 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:30:38.814 | INFO    | __main__:train:142 -   Average training loss: 0.39
+2023-02-09 19:30:44.824 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:30:44.825 | INFO    | __main__:train:174 -   Validation Loss: 0.32
+2023-02-09 19:30:44.825 | INFO    | __main__:train:176 -   Training epcoh took: 0:00:57
+2023-02-09 19:30:44.825 | INFO    | __main__:train:115 - Epoch 3/10
+2023-02-09 19:30:44.825 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:31:08.647 | INFO    | __main__:train:142 -   Average training loss: 0.32
+2023-02-09 19:31:14.825 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:31:14.825 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:31:14.825 | INFO    | __main__:train:176 -   Training epcoh took: 0:01:27
+2023-02-09 19:31:14.826 | INFO    | __main__:train:115 - Epoch 4/10
+2023-02-09 19:31:14.826 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:31:38.668 | INFO    | __main__:train:142 -   Average training loss: 0.32
+2023-02-09 19:31:44.734 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:31:44.734 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:31:44.734 | INFO    | __main__:train:176 -   Training epcoh took: 0:01:57
+2023-02-09 19:31:44.735 | INFO    | __main__:train:115 - Epoch 5/10
+2023-02-09 19:31:44.735 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:32:07.929 | INFO    | __main__:train:142 -   Average training loss: 0.31
+2023-02-09 19:32:13.911 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:32:13.911 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:32:13.911 | INFO    | __main__:train:176 -   Training epcoh took: 0:02:26
+2023-02-09 19:32:13.912 | INFO    | __main__:train:115 - Epoch 6/10
+2023-02-09 19:32:13.912 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:32:36.743 | INFO    | __main__:train:142 -   Average training loss: 0.31
+2023-02-09 19:32:42.603 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:32:42.604 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:32:42.604 | INFO    | __main__:train:176 -   Training epcoh took: 0:02:55
+2023-02-09 19:32:42.604 | INFO    | __main__:train:115 - Epoch 7/10
+2023-02-09 19:32:42.604 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:33:05.493 | INFO    | __main__:train:142 -   Average training loss: 0.31
+2023-02-09 19:33:11.408 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:33:11.408 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:33:11.408 | INFO    | __main__:train:176 -   Training epcoh took: 0:03:24
+2023-02-09 19:33:11.409 | INFO    | __main__:train:115 - Epoch 8/10
+2023-02-09 19:33:11.409 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:33:34.828 | INFO    | __main__:train:142 -   Average training loss: 0.31
+2023-02-09 19:33:41.016 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:33:41.016 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:33:41.017 | INFO    | __main__:train:176 -   Training epcoh took: 0:03:53
+2023-02-09 19:33:41.017 | INFO    | __main__:train:115 - Epoch 9/10
+2023-02-09 19:33:41.017 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:34:03.839 | INFO    | __main__:train:142 -   Average training loss: 0.31
+2023-02-09 19:34:09.779 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:34:09.780 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:34:09.780 | INFO    | __main__:train:176 -   Training epcoh took: 0:04:22
+2023-02-09 19:34:09.780 | INFO    | __main__:train:115 - Epoch 10/10
+2023-02-09 19:34:09.780 | INFO    | __main__:train:116 - ----------
+2023-02-09 19:34:32.103 | INFO    | __main__:train:142 -   Average training loss: 0.31
+2023-02-09 19:34:37.782 | INFO    | __main__:train:170 -   Accuracy: 1.00
+2023-02-09 19:34:37.782 | INFO    | __main__:train:174 -   Validation Loss: 0.31
+2023-02-09 19:34:37.782 | INFO    | __main__:train:176 -   Training epcoh took: 0:04:50
