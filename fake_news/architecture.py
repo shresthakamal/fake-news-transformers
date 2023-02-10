@@ -13,13 +13,10 @@ class CustomBERTModel(torch.nn.Module):
         self.bert_model = BertModel.from_pretrained(
             BERT_MODEL, output_hidden_states=True
         )
-
         # set a linear layer to map the hidden states to 64 dimensions
-        self.linear = torch.nn.Linear(768, 64)
-        # set another linear layer to map the 64 dimensions to 2 dimensions
-        self.linear2 = torch.nn.Linear(64, 2)
+        self.linear = torch.nn.Linear(768, 2)
         # set a dropout layer
-        self.dropout = torch.nn.Dropout(0.1)
+        self.dropout = torch.nn.Dropout(0.2)
         # set a relu activation function
         self.relu = torch.nn.ReLU()
 
@@ -35,10 +32,9 @@ class CustomBERTModel(torch.nn.Module):
         # pass the output of the relu activation function to the dropout layer
         x = self.dropout(x)
 
-        # pass the output of the dropout layer to the second linear layer
-        x = self.linear2(x)
-
         # set a softmax activation function
-        x = torch.nn.functional.softmax(x, dim=1)
+
+        # set a log softmax activation function
+        x = torch.nn.functional.log_softmax(x, dim=1)
 
         return x

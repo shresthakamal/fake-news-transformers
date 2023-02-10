@@ -86,24 +86,43 @@ def train(sentences, labels, lower=False):
 
     # create dataset
     dataset = TensorDataset(input_ids, targets)
-    # create dataloader
-    dataloader = DataLoader(dataset, batch_size=config.BATCH_SIZE, shuffle=True)
+
+    # split the dataset into train and validation
+    train_size = int(0.7 * len(dataset))
+    val_size = len(dataset) - train_size
+
+    train_dataset, val_dataset = torch.utils.data.random_split(
+        dataset, [train_size, val_size]
+    )
+
+    # set train and validation dataloaders
+    train_dataloader = DataLoader(
+        train_dataset,
+        sampler=RandomSampler(train_dataset),
+        batch_size=config.BATCH_SIZE,
+    )
+
+    validation_dataloader = DataLoader(
+        val_dataset,
+        sampler=RandomSampler(val_dataset),
+        batch_size=config.BATCH_SIZE,
+    )
 
     # define model
     model = CustomBERTModel(BertModel, BERT_MODEL=config.model_name).to(device)
-
     # set adamw optimizer
     optimizer = torch.optim.AdamW(model.parameters(), lr=config.LEARNING_RATE)
     # set loss function
     loss_fn = torch.nn.CrossEntropyLoss()
 
     # set number of training steps
-    total_steps = len(dataloader) * config.EPOCHS
+    total_steps = len(train_dataloader) * config.EPOCHS
+
     # set scheduler
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
         optimizer,
         max_lr=config.LEARNING_RATE,
-        steps_per_epoch=len(dataloader),
+        steps_per_epoch=len(train_dataloader),
         epochs=config.EPOCHS,
     )
 
@@ -119,7 +138,7 @@ def train(sentences, labels, lower=False):
 
         total_loss = 0
 
-        for step, batch in enumerate(dataloader):
+        for step, batch in enumerate(train_dataloader):
             input_ids = batch[0].to(device)
             labels = batch[1].to(device)
 
@@ -137,9 +156,9 @@ def train(sentences, labels, lower=False):
             scheduler.step()
             model.zero_grad()
 
-        avg_train_loss = total_loss / len(dataloader)
+        avg_train_loss = total_loss / len(train_dataloader)
 
-        logger.info("  Average training loss: {0:.2f}".format(avg_train_loss))
+        logger.info("  Average training loss: {0:.5f}".format(avg_train_loss))
         tbwriter.add_scalar(f"Training loss", avg_train_loss, epoch)
 
         # save model
@@ -152,7 +171,7 @@ def train(sentences, labels, lower=False):
         total_eval_loss = 0
         nb_eval_steps = 0
 
-        for batch in dataloader:
+        for batch in validation_dataloader:
             input_ids = batch[0].to(device)
             labels = batch[1].to(device)
             logits = model(input_ids)
@@ -166,12 +185,13 @@ def train(sentences, labels, lower=False):
 
             total_eval_accuracy += flat_accuracy(logits, label_ids)
 
-        avg_val_accuracy = total_eval_accuracy / len(dataloader)
-        logger.info("  Accuracy: {0:.2f}".format(avg_val_accuracy))
+        avg_val_accuracy = total_eval_accuracy / len(validation_dataloader)
+        logger.info("Validation Accuracy: {0:.5f}".format(avg_val_accuracy))
+
         tbwriter.add_scalar(f"Validation Accuracy", avg_val_accuracy, epoch)
 
-        avg_val_loss = total_eval_loss / len(dataloader)
-        logger.info("  Validation Loss: {0:.2f}".format(avg_val_loss))
+        avg_val_loss = total_eval_loss / len(validation_dataloader)
+        logger.info("  Validation Loss: {0:.5f}".format(avg_val_loss))
 
         logger.info(
             "  Training epcoh took: {:}".format(format_time(time.time() - start_time))
