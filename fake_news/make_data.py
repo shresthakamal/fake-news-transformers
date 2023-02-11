@@ -1,4 +1,6 @@
 import os
+import re
+import string
 import pandas as pd
 from sklearn.utils import shuffle
 from fake_news import config
