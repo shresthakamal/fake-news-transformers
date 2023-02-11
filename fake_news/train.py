@@ -92,6 +92,9 @@ def train(sentences, labels, lower=False):
     train_size = int(config.TRAIN_SIZE * len(dataset))
     val_size = len(dataset) - train_size
 
+    logger.info(f"Train size: {train_size}")
+    logger.info(f"Validation size: {val_size}")
+
     train_dataset, val_dataset = torch.utils.data.random_split(
         dataset, [train_size, val_size]
     )
