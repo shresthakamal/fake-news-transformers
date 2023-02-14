@@ -23,24 +23,16 @@ def make_data(fakepath, truepath, savepath):
         data = pd.read_csv(config.savepath)
         return data
 
-    fake = pd.read_csv(fakepath)
-    fake["label"] = 0
+    train = pd.read_csv("./data/train.csv")
 
-    true = pd.read_csv(truepath)
-    true["label"] = 1
+    train["X"] = train["author"] + "[SEP]" + train["title"] + "[SEP]" + train["text"]
 
-    data = pd.concat([fake, true], ignore_index=True)
+    train = train.dropna()
+    train = shuffle(train)
 
-    data["text"] = data["text"].apply(remove_special_characters)
-    data["title"] = data["title"].apply(remove_special_characters)
+    train.to_csv(savepath, index=False)
 
-    data["X"] = data["title"] + "[SEP]" + data["text"]
-
-    data = shuffle(data)
-
-    data.to_csv(savepath, index=False)
-
-    return data
+    return train
 
 
 # python main function

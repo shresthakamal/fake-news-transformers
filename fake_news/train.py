@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import random
 import datetime
-
+from tqdm import tqdm
 from torch.utils.data import TensorDataset, DataLoader
 from torch.utils.data import DataLoader, RandomSampler
 from transformers import get_scheduler
@@ -59,7 +59,7 @@ def train(sentences, labels, lower=False):
     # define bert tokenizer
     tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
 
-    for i in range(len(sentences)):
+    for i in tqdm(range(len(sentences))):
         sentences[i] = sentences[i].strip()
 
         if lower:
