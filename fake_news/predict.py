@@ -23,7 +23,7 @@ def predict(sentence, lower=False):
         add_special_tokens=True,
         truncation=True,
         padding="max_length",
-        max_length=64,
+        max_length=config.MAX_LENGTH,
         return_tensors="pt",
     ).to(device)
 
