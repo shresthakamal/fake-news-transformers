@@ -15,3 +15,8 @@ repos:
     rev: d9b8a6407e2f46304a8d36b18e4a73d8e0613519
     hooks:
       - id: black
+
+  - repo: https://github.com/PyCQA/isort
+    rev: 3a72e069635a865a92b8a0273aa829f630cbcd6f
+    hooks:
+      - id: isort
