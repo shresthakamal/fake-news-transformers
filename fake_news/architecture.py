@@ -38,3 +38,6 @@ class CustomBERTModel(torch.nn.Module):
         x = torch.nn.functional.log_softmax(x, dim=1)
 
         return x
+
+
+# set the device to GPU if available
