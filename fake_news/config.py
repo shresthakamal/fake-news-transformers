@@ -15,7 +15,7 @@ model_path = "./fake_news/models/"
 
 EPOCHS = 10
 
-BATCH_SIZE = 8
+BATCH_SIZE = 32
 
 LEARNING_RATE = 1e-5
 

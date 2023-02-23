@@ -175,7 +175,6 @@ def train(sentences, labels, lower=False):
 
         total_eval_accuracy = 0
         total_eval_loss = 0
-        nb_eval_steps = 0
 
         with torch.no_grad():
             for batch in validation_dataloader:
