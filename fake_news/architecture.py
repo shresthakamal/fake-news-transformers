@@ -1,7 +1,5 @@
-import numpy as np
 import torch
 from transformers import BertModel
-
 
 # Load tokenizer and model
 
@@ -41,3 +39,4 @@ class CustomBERTModel(torch.nn.Module):
 
 
 # set the device to GPU if available
+####
