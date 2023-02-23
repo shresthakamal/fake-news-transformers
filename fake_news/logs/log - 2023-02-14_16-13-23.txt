@@ -1,0 +1,5 @@
+2023-02-14 16:13:23.117 | INFO    | __main__:<module>:218 - Making data...
+2023-02-14 16:18:35.801 | INFO    | __main__:train:95 - Train size: 26938
+2023-02-14 16:18:35.803 | INFO    | __main__:train:96 - Validation size: 17959
+2023-02-14 16:18:38.309 | INFO    | __main__:train:138 - Epoch 1/10
+2023-02-14 16:18:38.309 | INFO    | __main__:train:139 - ----------
