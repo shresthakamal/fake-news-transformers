@@ -10,3 +10,8 @@ repos:
       - id: check-added-large-files
       - id: pretty-format-json
       - id: check-json
+
+  - repo: https://github.com/psf/black
+    rev: d9b8a6407e2f46304a8d36b18e4a73d8e0613519
+    hooks:
+      - id: black
