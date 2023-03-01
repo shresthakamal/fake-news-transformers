@@ -1,0 +1,3 @@
+2023-03-01 22:13:22.676 | INFO    | __main__:<module>:247 - Making data...
+2023-03-01 22:18:06.951 | INFO    | __main__:train:93 - Train size: 26938
+2023-03-01 22:18:06.953 | INFO    | __main__:train:94 - Validation size: 17959

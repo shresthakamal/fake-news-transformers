@@ -10,6 +10,7 @@ from loguru import logger
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, RandomSampler, TensorDataset
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
 from transformers import BertModel, BertTokenizer, get_scheduler
 
 from fake_news import config
@@ -132,10 +133,7 @@ def train(sentences, labels, lower=False):
     start_time = time.time()
 
     # train model
-    for epoch in range(config.EPOCHS):
-        logger.info(f"Epoch {epoch + 1}/{config.EPOCHS}")
-        logger.info("-" * 10)
-
+    for epoch in tqdm(range(config.EPOCHS)):
         model.train()
 
         total_loss = 0
@@ -161,9 +159,6 @@ def train(sentences, labels, lower=False):
             model.zero_grad()
 
         avg_train_loss = total_loss / len(train_dataloader)
-
-        logger.info("  Average training loss: {0:.5f}".format(avg_train_loss))
-        tbwriter.add_scalar(f"Training loss", avg_train_loss, epoch)
 
         # save model
         torch.save(model.state_dict(), Path(config.model_path, f"bert_{epoch}.pt"))
@@ -211,14 +206,27 @@ def train(sentences, labels, lower=False):
                 "Accuracy (Sklearn)": accuracy,
             }
 
-            tbwriter.add_scalar(f"Validation Accuracy", avg_val_accuracy, epoch)
+            # plot training loss per epoch and validation loss per epoch in same tensorboard graph
+            tbwriter.add_scalars(
+                "Loss",
+                {
+                    "Training Loss Per Epoch": total_loss,
+                    "Validation Loss Per Epoch": total_eval_loss,
+                },
+                epoch,
+            )
 
-            tbwriter.add_scalar(f"Training Loss Per Epoch", total_loss, epoch)
-            tbwriter.add_scalar(f"Validation Loss Per Epoch", total_eval_loss, epoch)
+            # plot validation accuracy per epoch and sklearn accuracy per epoch in same tensorboard graph
+            tbwriter.add_scalars(
+                "Accuracy",
+                {
+                    "Validation Accuracy Per Epoch": avg_val_accuracy,
+                    "Accuracy (Sklearn)": accuracy,
+                },
+                epoch,
+            )
 
             tbwriter.add_scalar(f"F1 Score", f1, epoch)
-
-            tbwriter.add_scalar(f"Accuracy", accuracy, epoch)
 
     # save training stat in a txt file
     with open(Path("./fake_news/training_stats.txt"), "a") as f:
