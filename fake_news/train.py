@@ -1,24 +1,21 @@
+import datetime
+import json
+import random
 import time
+from pathlib import Path
+
 import numpy as np
 import torch
-import random
-import datetime
+from loguru import logger
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
+from torch.utils.data import DataLoader, RandomSampler, TensorDataset
+from torch.utils.tensorboard import SummaryWriter
+from transformers import BertModel, BertTokenizer, get_scheduler
 
-from torch.utils.data import TensorDataset, DataLoader
-from torch.utils.data import DataLoader, RandomSampler
-from transformers import get_scheduler
-
-from transformers import BertModel, BertTokenizer
-from fake_news.architecture import CustomBERTModel
 from fake_news import config
-
+from fake_news.architecture import CustomBERTModel
 from fake_news.make_data import make_data
 from fake_news.predict import predict
-
-from pathlib import Path
-from loguru import logger
-
-from torch.utils.tensorboard import SummaryWriter
 
 
 # time based filename
@@ -130,6 +127,7 @@ def train(sentences, labels, lower=False):
         num_training_steps=total_steps,
     )
 
+    training_stats = {}
     # start training clock
     start_time = time.time()
 
@@ -175,6 +173,7 @@ def train(sentences, labels, lower=False):
 
         total_eval_accuracy = 0
         total_eval_loss = 0
+        predictions, true_labels = [], []
 
         with torch.no_grad():
             for batch in validation_dataloader:
@@ -191,19 +190,41 @@ def train(sentences, labels, lower=False):
 
                 total_eval_accuracy += flat_accuracy(logits, label_ids)
 
+                predictions.extend(np.argmax(logits, axis=1).flatten().tolist())
+                true_labels.extend(np.argmax(label_ids, axis=1).flatten().tolist())
+
             avg_val_accuracy = total_eval_accuracy / len(validation_dataloader)
-            logger.info("Validation Accuracy: {0:.5f}".format(avg_val_accuracy))
+            avg_val_loss = total_eval_loss / len(validation_dataloader)
+
+            f1 = f1_score(true_labels, predictions)
+            accuracy = accuracy_score(true_labels, predictions)
+
+            training_stats[epoch] = {
+                "Training Loss Per Epoch": total_loss,
+                "Average Training Loss": avg_train_loss,
+                "Validation Loss Per Epoch": total_eval_loss,
+                "Average Validation Loss PE": avg_val_loss,
+                "Average Validation Accuracy PE": avg_val_accuracy,
+                "Training Time": format_time(time.time() - start_time),
+                "F1 Score": f1,
+                "Confusion Matrix": confusion_matrix(true_labels, predictions),
+                "Accuracy (Sklearn)": accuracy,
+            }
 
             tbwriter.add_scalar(f"Validation Accuracy", avg_val_accuracy, epoch)
 
-            avg_val_loss = total_eval_loss / len(validation_dataloader)
-            logger.info("  Validation Loss: {0:.5f}".format(avg_val_loss))
+            tbwriter.add_scalar(f"Training Loss Per Epoch", total_loss, epoch)
+            tbwriter.add_scalar(f"Validation Loss Per Epoch", total_eval_loss, epoch)
 
-            logger.info(
-                "  Training epcoh took: {:}".format(
-                    format_time(time.time() - start_time)
-                )
-            )
+            tbwriter.add_scalar(f"F1 Score", f1, epoch)
+
+            tbwriter.add_scalar(f"Accuracy", accuracy, epoch)
+
+    # save training stat in a txt file
+    with open(Path("./fake_news/training_stats.txt"), "a") as f:
+        f.write(str(training_stats) + "\n")
+
+    print("Training complete!")
 
 
 # python main function

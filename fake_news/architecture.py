@@ -11,7 +11,7 @@ class CustomBERTModel(torch.nn.Module):
         self.bert_model = BertModel.from_pretrained(
             BERT_MODEL, output_hidden_states=True
         )
-        # set a linear layer to map the hidden states to 64 dimensions
+        # set a linear layer to map the hidden states to the output space
         self.linear = torch.nn.Linear(768, 2)
         # set a dropout layer
         self.dropout = torch.nn.Dropout(0.2)
