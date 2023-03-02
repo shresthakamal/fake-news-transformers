@@ -151,6 +151,7 @@ def train(sentences, labels, lower=False):
     for epoch in range(config.EPOCHS):
         # log progress
         logger.info(f"Epoch {epoch + 1}/{config.EPOCHS}")
+        logger.info("-" * 10)
 
         total_loss = 0
 
@@ -184,6 +185,9 @@ def train(sentences, labels, lower=False):
             scheduler.step()
 
         avg_train_loss = total_loss / len(train_dataloader)
+
+        # log average training loss
+        logger.info(f"Average training loss: {avg_train_loss}")
 
         # save model
         torch.save(model.state_dict(), Path(config.model_path, f"bert_{epoch}.pt"))
@@ -221,6 +225,10 @@ def train(sentences, labels, lower=False):
 
             avg_val_accuracy = total_eval_accuracy / len(validation_dataloader)
             avg_val_loss = total_eval_loss / len(validation_dataloader)
+
+            # log average validation loss and accuracy
+            logger.info(f"Average validation loss: {avg_val_loss}")
+            logger.info(f"Average validation accuracy: {avg_val_accuracy}")
 
             # Metrics from Sklearn
             f1 = f1_score(true_labels, predictions)
