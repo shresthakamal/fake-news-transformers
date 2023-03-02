@@ -15,13 +15,13 @@ model_path = "./fake_news/models/"
 
 EPOCHS = 10
 
-BATCH_SIZE = 32
+BATCH_SIZE = 8
 
-LEARNING_RATE = 1e-5
+LEARNING_RATE = 1e-4
 
-MAX_LENGTH = 32
+MAX_LENGTH = 64
 
 TOTAL_ROWS = -1
 
 
-TRAIN_SIZE = 0.6
+TRAIN_SIZE = 0.8

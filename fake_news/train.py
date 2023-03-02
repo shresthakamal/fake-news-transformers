@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import torch
 from loguru import logger
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
@@ -132,9 +133,24 @@ def train(sentences, labels, lower=False):
     # start training clock
     start_time = time.time()
 
+    """
+    The optimizer.zero_grad() function resets the gradients of all the trainable parameters in the model that are managed by the optimizer.
+    This is typically used inside the training loop, before calling loss.backward() to compute the gradients.
+
+    The model.zero_grad() function resets the gradients of all the trainable parameters in the model that are not managed by the optimizer.
+    This is typically used outside the training loop, before calling loss.backward() to compute the gradients when not using an optimizer.
+    """
+
+    # set model to training mode
+    model.train()
+
+    # clear gradients
+    model.zero_grad()
+
     # train model
-    for epoch in tqdm(range(config.EPOCHS)):
-        model.train()
+    for epoch in range(config.EPOCHS):
+        # log progress
+        logger.info(f"Epoch {epoch + 1}/{config.EPOCHS}")
 
         total_loss = 0
 
@@ -142,21 +158,30 @@ def train(sentences, labels, lower=False):
             input_ids = batch[0].to(device)
             labels = batch[1].to(device)
 
-            optimizer.zero_grad()
-
             logits = model(input_ids)
 
             loss = loss_fn(logits, labels)
 
             total_loss += loss.item()
 
+            # clear gradients
+            # This is called just before loss.backward() to clear the gradients of all optimized torch.Tensors.
+            optimizer.zero_grad()
+
+            # Perform back propagation to calculate the gradients
             loss.backward()
 
+            # this is to clip the norm of the gradients to 1.0
+            # This prevents the "exploding gradients" problem
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
 
+            # Now use those calculated gradients to update the parameters of our model
+            # The optimizer dictates the "update rule" - how the parameters are modified based on their gradients, the learning rate, etc.
+            # The learning rate is a very important hyperparameter that controls how much we are adjusting the parameters of our model with respect to the loss gradient.
             optimizer.step()
+
+            # Update the learning rate
             scheduler.step()
-            model.zero_grad()
 
         avg_train_loss = total_loss / len(train_dataloader)
 
@@ -164,25 +189,31 @@ def train(sentences, labels, lower=False):
         torch.save(model.state_dict(), Path(config.model_path, f"bert_{epoch}.pt"))
 
         # # evaluate model
+        # Put the model in evaluation mode--the dropout layers behave differently during evaluation.
         model.eval()
 
         total_eval_accuracy = 0
         total_eval_loss = 0
         predictions, true_labels = [], []
 
+        # Telling the model not to compute or store gradients, saving memory and speeding up validation
+        # https://pytorch.org/docs/stable/generated/torch.no_grad.html
+        # sets all requires_grad flags to false
+
         with torch.no_grad():
             for batch in validation_dataloader:
                 input_ids = batch[0].to(device)
                 labels = batch[1].to(device)
+
                 logits = model(input_ids)
 
                 loss = loss_fn(logits, labels)
 
-                total_eval_loss += loss.item()
-
+                # move logits and labels to cpu to calculate metrics and convert to numpy
                 logits = logits.detach().cpu().numpy()
                 label_ids = labels.to("cpu").numpy()
 
+                total_eval_loss += loss.item()
                 total_eval_accuracy += flat_accuracy(logits, label_ids)
 
                 predictions.extend(np.argmax(logits, axis=1).flatten().tolist())
@@ -191,8 +222,10 @@ def train(sentences, labels, lower=False):
             avg_val_accuracy = total_eval_accuracy / len(validation_dataloader)
             avg_val_loss = total_eval_loss / len(validation_dataloader)
 
+            # Metrics from Sklearn
             f1 = f1_score(true_labels, predictions)
             accuracy = accuracy_score(true_labels, predictions)
+            cm = confusion_matrix(true_labels, predictions)
 
             training_stats[epoch] = {
                 "Training Loss Per Epoch": total_loss,
@@ -202,7 +235,7 @@ def train(sentences, labels, lower=False):
                 "Average Validation Accuracy PE": avg_val_accuracy,
                 "Training Time": format_time(time.time() - start_time),
                 "F1 Score": f1,
-                "Confusion Matrix": confusion_matrix(true_labels, predictions),
+                "Confusion Matrix": cm,
                 "Accuracy (Sklearn)": accuracy,
             }
 
@@ -228,9 +261,13 @@ def train(sentences, labels, lower=False):
 
             tbwriter.add_scalar(f"F1 Score", f1, epoch)
 
-    # save training stat in a txt file
-    with open(Path("./fake_news/training_stats.txt"), "a") as f:
-        f.write(str(training_stats) + "\n")
+    # create a pandas dataframe from training stats
+    df_stats = pd.DataFrame(data=training_stats).transpose()
+
+    # save dataframe to csv
+    df_stats.to_csv(Path("./fake_news/training_stats.csv"))
+
+    print(df_stats)
 
     print("Training complete!")
 

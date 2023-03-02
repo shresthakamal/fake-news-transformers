@@ -6,3 +6,7 @@ predict:
 
 tensorboard:
 	tensorboard --logdir="./fake_news/tensorboard/"
+
+clean:
+	rm -rf fake_news/tensorboard/*
+	rm -rf fake_news/logs/*
